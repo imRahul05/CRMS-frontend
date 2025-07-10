@@ -4,6 +4,7 @@ A comprehensive web application for managing employee referrals built with React
 
 ![CRMS Dashboard](https://via.placeholder.com/800x400?text=CRMS+Dashboard)
 
+![API documentation](https://documenter.getpostman.com/view/34815726/2sB34fm182)
 ## Features
 
 ### User Authentication
