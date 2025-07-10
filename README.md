@@ -38,16 +38,12 @@ A comprehensive web application for managing employee referrals built with React
 - **Notifications**: React-Toastify
 - **Build Tool**: Vite
 
+![Login](src/assets/login.png)
+![Register](src/assets/register.png)
+![Admin Dashboard](src/assets/admin_dashboard.png)
+![Profile Page](src/assets/profilePage.png)
+![Referral Form](src/assets/User_referral_form.png)
 
-[!Login](src/assets/login.png)
-
-[!Register](src/assets/register.png)
-
-[!adminPage](src/assets/admin_dashboard.png)
-
-[!profilePage](src/assets//profilePage.png)
-
-[!Referral_form](src/assets/User_referral_form.png)
 ## Project Structure
 
 ```
