@@ -5,7 +5,7 @@ import './App.css';
 import Home from './Pages/Home';
 import NavBar from './components/NavBar';
 import { ReferralForm, CandidatesDashboard } from './Pages/user';
-import { AdminDashboard } from './Pages/admin';
+import { AdminDashboard, CandidateList } from './Pages/admin';
 import UpdateCandidate from './Pages/UpdateCandidate';
 import Login from './Pages/Login';
 import Register from './Pages/Register';
@@ -63,6 +63,7 @@ const AppRoutes = () => {
         <Route path="/dashboard" element={<AuthGuard><CandidatesDashboard /></AuthGuard>} />
         
         <Route path="/admin" element={<RoleGuard allowedRoles={['admin']}><AdminDashboard /></RoleGuard>} />
+        <Route path="/admin/candidates" element={<RoleGuard allowedRoles={['admin']}><CandidateList /></RoleGuard>} />
         <Route path="/update/:id" element={<RoleGuard allowedRoles={['admin']}><UpdateCandidate /></RoleGuard>} />
         
         <Route path="*" element={<Navigate to={isAuthenticated ? "/" : "/login"} />} />

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import CandidateCard from '../../components/CandidateCard';
 import SearchFilter from '../../components/SearchFilter';
@@ -33,7 +33,7 @@ const AdminDashboard = () => {
     }
   }, [user, navigate]);
 
-  // Fetch referrals from API
+
   useEffect(() => {
     const getReferrals = async () => {
       setLoading(true);
@@ -55,7 +55,6 @@ const AdminDashboard = () => {
     }
   }, [user]);
 
-  // Calculate stats whenever candidates change
   useEffect(() => {
     if (candidates && candidates.length > 0) {
       const stats = candidates.reduce(
@@ -75,9 +74,9 @@ const AdminDashboard = () => {
   }, [candidates]);
 
   const [searchTerm, setSearchTerm] = useState('');
-  const [searchCategory, setSearchCategory] = useState('jobTitle');
+  const [searchCategory, setSearchCategory] = useState('name');
 
-  // Handle search function
+
   const handleSearch = (term, category) => {
     setSearchTerm(term);
     setSearchCategory(category);
@@ -93,13 +92,12 @@ const AdminDashboard = () => {
     setFilteredCandidates(filtered);
   };
 
-  // Function to update candidate status
+
   const updateCandidateStatus = async (id, newStatus) => {
     try {
       setLoading(true);
       await apiUpdateStatus(id, newStatus);
       
-      // Update the local state
       const updatedCandidates = candidates.map(candidate => 
         candidate._id === id || candidate.id === id 
           ? { ...candidate, status: newStatus } 
@@ -120,14 +118,12 @@ const AdminDashboard = () => {
     }
   };
   
-  // Function to handle candidate deletion
   const handleDeleteCandidate = async (id) => {
     if (window.confirm('Are you sure you want to delete this candidate?')) {
       try {
         setLoading(true);
         await apiDeleteCandidate(id);
         
-        // Update the local state
         const updatedCandidates = candidates.filter(
           candidate => candidate._id !== id && candidate.id !== id
         );
@@ -146,7 +142,9 @@ const AdminDashboard = () => {
       }
     }
   };
-
+ const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -154,7 +152,7 @@ const AdminDashboard = () => {
       </div>
     );
   }
-
+  
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
@@ -197,13 +195,23 @@ const AdminDashboard = () => {
       </div>
       
       <div className="bg-white shadow-md rounded-lg p-6">
-        <h2 className="text-2xl font-bold mb-4">Candidate Referrals</h2>
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-2xl font-bold">Recent Referrals</h2>
+          {filteredCandidates.length > 3 && (
+            <Link 
+              to="/admin/candidates"
+              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+            >
+              View All Referrals
+            </Link>
+          )}
+        </div>
         
         {error && <p className="text-red-500 mb-4">{error}</p>}
         
         {filteredCandidates && filteredCandidates.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredCandidates.map(candidate => (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {filteredCandidates.slice(0, 3).map(candidate => (
               <CandidateCard 
                 key={candidate._id || candidate.id} 
                 candidate={candidate}

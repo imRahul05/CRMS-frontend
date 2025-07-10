@@ -14,13 +14,14 @@ const SearchFilter = ({ searchTerm, setSearchTerm, searchCategory, setSearchCate
       </div>
       <div className="w-full md:w-1/3">
         <select
-          className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+          className="shadow  border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
           value={searchCategory}
           onChange={(e) => setSearchCategory(e.target.value)}
         >
-          <option value="jobTitle">Search by Job Title</option>
-          <option value="status">Search by Status</option>
           <option value="name">Search by Name</option>
+          <option value="status">Search by Status</option>
+          <option value="jobTitle">Search by Job Title</option>
+         
         </select>
       </div>
     </div>

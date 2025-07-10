@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import CandidateCard from '../../components/CandidateCard';
 import SearchFilter from '../../components/SearchFilter';
+import Pagination from '../../components/Pagination';
 import { useCandidates } from '../../contexts/CandidateContext';
 import { useAuth } from '../../contexts/AuthContext';
 import Notification from '../../components/Notification';
@@ -23,12 +24,34 @@ const CandidatesDashboard = () => {
   } = useCandidates();
   
   const { user, isAuthenticated } = useAuth();
+  const [currentPage, setCurrentPage] = useState(1);
   const [displayCandidates, setDisplayCandidates] = useState([]);
+  const itemsPerPage = 6; // Maximum items to show per page
+
+  // Calculate total pages
+  const totalPages = Math.ceil(filteredCandidates.length / itemsPerPage);
+
+  // Get current page items
+  const getCurrentPageItems = (items) => {
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    return items.slice(indexOfFirstItem, indexOfLastItem);
+  };
+
+  // Handle page change
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
 
   // Set display candidates when filteredCandidates changes
   useEffect(() => {
-    setDisplayCandidates(filteredCandidates);
-  }, [filteredCandidates]);
+    setDisplayCandidates(getCurrentPageItems(filteredCandidates));
+  }, [filteredCandidates, currentPage]);
+  
+  // Reset to first page when search changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, searchCategory]);
   
   const handleDeleteCandidate = (id) => {
     if (window.confirm('Are you sure you want to delete this candidate?')) {
@@ -90,6 +113,15 @@ const CandidatesDashboard = () => {
             />
           ))}
         </div>
+        
+        {/* Pagination */}
+        {filteredCandidates.length > itemsPerPage && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+          />
+        )}
       </div>
     </div>
   );
