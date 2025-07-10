@@ -89,6 +89,15 @@ export const AuthProvider = ({ children }) => {
         payload: { user, token }
       });
       
+      // When a user successfully logs in, we'll try to refresh the candidates data
+      try {
+        const candidateContext = await import('./CandidateContext');
+        const refreshCandidates = candidateContext.useCandidates().refreshCandidates;
+        if (refreshCandidates) refreshCandidates();
+      } catch (err) {
+        console.error('Failed to refresh candidates after login:', err);
+      }
+      
       return { success: true };
     } catch (error) {
       console.error('Login error:', error);

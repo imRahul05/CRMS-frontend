@@ -14,61 +14,37 @@ const CandidatesDashboard = () => {
     success: contextSuccess,
     updateCandidateStatus,
     deleteCandidate,
+    candidates,
+    filteredCandidates,
+    searchTerm,
+    setSearchTerm,
+    searchCategory,
+    setSearchCategory
   } = useCandidates();
   
-  const { user } = useAuth();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [candidates, setCandidates] = useState([]);
-  const [filteredCandidates, setFilteredCandidates] = useState([]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [searchCategory, setSearchCategory] = useState('jobTitle');
+  const { user, isAuthenticated } = useAuth();
+  const [displayCandidates, setDisplayCandidates] = useState([]);
 
-  // Fetch user's referrals when component mounts
+  // Set display candidates when filteredCandidates changes
   useEffect(() => {
-    const fetchReferrals = async () => {
-      setLoading(true);
-      setError(null);
-      
-      try {
-        const data = await fetchUserReferrals();
-        setCandidates(data);
-        setFilteredCandidates(data);
-      } catch (err) {
-        setError('Failed to fetch your referrals');
-        toast.error('Failed to fetch your referrals');
-      } finally {
-        setLoading(false);
-      }
-    };
-    
-    if (user && user.role !== 'admin') {
-      fetchReferrals();
-    }
-  }, [user]);
-  
-  // Handle search
-  useEffect(() => {
-    if (!searchTerm.trim()) {
-      setFilteredCandidates(candidates);
-      return;
-    }
-    
-    const filtered = candidates.filter(candidate => {
-      if (candidate[searchCategory] && typeof candidate[searchCategory] === 'string') {
-        return candidate[searchCategory].toLowerCase().includes(searchTerm.toLowerCase());
-      }
-      return false;
-    });
-    
-    setFilteredCandidates(filtered);
-  }, [searchTerm, candidates, searchCategory]);
+    setDisplayCandidates(filteredCandidates);
+  }, [filteredCandidates]);
   
   const handleDeleteCandidate = (id) => {
     if (window.confirm('Are you sure you want to delete this candidate?')) {
       deleteCandidate(id);
     }
   };
+  
+  // Check if the user is authenticated before rendering the dashboard
+  if (!isAuthenticated) {
+    return (
+      <div className="container mx-auto px-4 py-8 text-center">
+        <h1 className="text-3xl font-bold mb-4">Please Login</h1>
+        <p className="text-gray-600">You need to login to view your referrals.</p>
+      </div>
+    );
+  }
   
   return (
     <div className="container mx-auto px-4 py-8">
@@ -79,7 +55,7 @@ const CandidatesDashboard = () => {
         Track the status of your candidate referrals
       </p>
       
-      <Notification error={error || contextError} success={contextSuccess} />
+      <Notification error={contextError} success={contextSuccess} />
       
       <div className="bg-white shadow-md rounded px-8 pt-6 pb-8">
         <h2 className="text-2xl font-semibold mb-4">
@@ -94,9 +70,9 @@ const CandidatesDashboard = () => {
         />
       
         {/* Candidates List */}
-        {(loading || contextLoading) && <p className="text-center">Loading candidates...</p>}
+        {contextLoading && <p className="text-center">Loading candidates...</p>}
       
-        {!(loading || contextLoading) && filteredCandidates.length === 0 && (
+        {!contextLoading && displayCandidates.length === 0 && (
           <div className="text-center py-8">
             <p className="text-gray-500 mb-4">No referrals found</p>
             <p className="text-sm text-gray-400">You haven't submitted any referrals yet or they might be processing.</p>
@@ -104,7 +80,7 @@ const CandidatesDashboard = () => {
         )}
       
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredCandidates.map((candidate) => (
+          {displayCandidates.map((candidate) => (
             <CandidateCard 
               key={candidate._id || candidate.id}
               candidate={candidate}

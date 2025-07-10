@@ -17,28 +17,31 @@ export const CandidateProvider = ({ children }) => {
   const [success, setSuccess] = useState(null);
 
   useEffect(() => {
-    fetchCandidates();
+    // Only fetch candidates if there's a user token in localStorage
+    const token = localStorage.getItem('token');
+    const user = JSON.parse(localStorage.getItem('user'));
+    
+    if (token && user) {
+      fetchCandidates(user);
+    }
   }, []);
 
   useEffect(() => {
     filterCandidates();
   }, [searchTerm, candidates, searchCategory]);
 
-  const fetchCandidates = async () => {
+  const fetchCandidates = async (user) => {
+    if (!user) return; // Don't fetch if no user
+    
     setLoading(true);
     try {
-      // Import the API functions
       const { fetchAdminReferrals, fetchUserReferrals } = await import('../api/api');
       
-      // Get the user from localStorage to determine role
-      const user = JSON.parse(localStorage.getItem('user'));
       let data = [];
       
-      if (user && user.role === 'admin') {
-        // Fetch all referrals if admin
+      if (user.role === 'admin') {
         data = await fetchAdminReferrals();
       } else {
-        // Fetch only user's referrals
         data = await fetchUserReferrals();
       }
       
@@ -170,6 +173,14 @@ export const CandidateProvider = ({ children }) => {
     }
   };
 
+  // Expose a method to manually refresh candidates if needed
+  const refreshCandidates = async () => {
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (user) {
+      await fetchCandidates(user);
+    }
+  };
+
   const value = {
     candidates,
     filteredCandidates,
@@ -185,7 +196,8 @@ export const CandidateProvider = ({ children }) => {
     updateCandidateStatus,
     deleteCandidate,
     getCandidateById,
-    clearMessages
+    clearMessages,
+    refreshCandidates
   };
 
   return (
