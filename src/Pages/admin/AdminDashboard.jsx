@@ -5,8 +5,11 @@ import CandidateCard from '../../components/CandidateCard';
 import SearchFilter from '../../components/SearchFilter';
 import Notification from '../../components/Notification';
 import { useCandidates } from '../../contexts/CandidateContext';
-import { fetchAdminReferrals, updateCandidateStatus as apiUpdateStatus, deleteCandidate as apiDeleteCandidate } from '../../api/api';
+import { fetchAdminReferrals } from '../../api/api';
 import { toast } from 'react-toastify';
+import DeleteCandidateModal from '../../components/DeleteCandidateModal';
+import { useAdminCandidateActions, calculateStats } from '../../api/admin/CandidateUpdation';
+import axios from '../../api/axios';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -16,6 +19,8 @@ const AdminDashboard = () => {
   const [error, setError] = useState(null);
   const [candidates, setCandidates] = useState([]);
   const [filteredCandidates, setFilteredCandidates] = useState([]);
+  const [selectedCandidates, setSelectedCandidates] = useState(new Set());
+  const [bulkUpdateStatus, setBulkUpdateStatus] = useState('');
   const [stats, setStats] = useState({
     total: 0,
     pending: 0,
@@ -23,6 +28,25 @@ const AdminDashboard = () => {
     hired: 0,
     rejected: 0
   });
+  const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [selectedCandidateId, setSelectedCandidateId] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [searchCategory, setSearchCategory] = useState('name');
+
+  const {
+    updateCandidateStatus,
+    handleSearch,
+    handleDeleteClick: createHandleDeleteClick,
+    confirmDeleteCandidate: createConfirmDeleteCandidate,
+    handleBulkStatusUpdate: bulkStatusUpdate
+  } = useAdminCandidateActions(
+    candidates,
+    setCandidates,
+    setFilteredCandidates,
+    setLoading,
+    searchTerm,
+    searchCategory
+  );
 
   // Check if user is admin
   useEffect(() => {
@@ -32,7 +56,6 @@ const AdminDashboard = () => {
       return;
     }
   }, [user, navigate]);
-
 
   useEffect(() => {
     const getReferrals = async () => {
@@ -57,94 +80,46 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     if (candidates && candidates.length > 0) {
-      const stats = candidates.reduce(
-        (acc, candidate) => {
-          acc.total++;
-          if (candidate.status === 'Pending') acc.pending++;
-          else if (candidate.status === 'Reviewed') acc.reviewed++;
-          else if (candidate.status === 'Hired') acc.hired++;
-          else if (candidate.status === 'Rejected') acc.rejected++;
-          return acc;
-        },
-        { total: 0, pending: 0, reviewed: 0, hired: 0, rejected: 0 }
-      );
-      
-      setStats(stats);
+      setStats(calculateStats(candidates));
     }
   }, [candidates]);
 
-  const [searchTerm, setSearchTerm] = useState('');
-  const [searchCategory, setSearchCategory] = useState('name');
-
-
-  const handleSearch = (term, category) => {
+  const handleSearchWrapper = (term, category) => {
     setSearchTerm(term);
     setSearchCategory(category);
-    
-    if (!term.trim()) {
-      setFilteredCandidates(candidates);
-      return;
-    }
-    
-    const filtered = candidates.filter(candidate => 
-      candidate[category]?.toLowerCase().includes(term.toLowerCase())
-    );
-    setFilteredCandidates(filtered);
+    handleSearch(term, category);
   };
 
+  // Use the curried functions
+  const handleDeleteClickWrapper = createHandleDeleteClick(setSelectedCandidateId, setModalIsOpen);
+  const confirmDeleteCandidateWrapper = () => 
+    createConfirmDeleteCandidate(selectedCandidateId, setModalIsOpen, setSelectedCandidateId);
 
-  const updateCandidateStatus = async (id, newStatus) => {
-    try {
-      setLoading(true);
-      await apiUpdateStatus(id, newStatus);
-      
-      const updatedCandidates = candidates.map(candidate => 
-        candidate._id === id || candidate.id === id 
-          ? { ...candidate, status: newStatus } 
-          : candidate
-      );
-      
-      setCandidates(updatedCandidates);
-      setFilteredCandidates(updatedCandidates.filter(c => 
-        c[searchCategory]?.toLowerCase().includes(searchTerm.toLowerCase())
-      ));
-      
-      toast.success(`Candidate status updated to ${newStatus}`);
-    } catch (err) {
-      toast.error('Failed to update candidate status');
-      console.error('Error updating status:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-  
-  const handleDeleteCandidate = async (id) => {
-    if (window.confirm('Are you sure you want to delete this candidate?')) {
-      try {
-        setLoading(true);
-        await apiDeleteCandidate(id);
-        
-        const updatedCandidates = candidates.filter(
-          candidate => candidate._id !== id && candidate.id !== id
-        );
-        
-        setCandidates(updatedCandidates);
-        setFilteredCandidates(updatedCandidates.filter(c => 
-          !searchTerm.trim() || c[searchCategory]?.toLowerCase().includes(searchTerm.toLowerCase())
-        ));
-        
-        toast.success('Candidate deleted successfully');
-      } catch (err) {
-        toast.error('Failed to delete candidate');
-        console.error('Error deleting candidate:', err);
-      } finally {
-        setLoading(false);
+  const handleSelectCandidate = (id, isSelected) => {
+    setSelectedCandidates(prev => {
+      const newSet = new Set(prev);
+      if (isSelected) {
+        newSet.add(id);
+      } else {
+        newSet.delete(id);
       }
-    }
+      return newSet;
+    });
   };
- const handlePageChange = (pageNumber) => {
-    setCurrentPage(pageNumber);
-  };
+
+  const handleBulkStatusUpdate = () => bulkStatusUpdate(
+    selectedCandidates,
+    bulkUpdateStatus,
+    candidates,
+    setCandidates,
+    setFilteredCandidates,
+    setLoading,
+    searchTerm,
+    searchCategory,
+    setSelectedCandidates,
+    setBulkUpdateStatus
+  );
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -189,8 +164,8 @@ const AdminDashboard = () => {
         <SearchFilter 
           searchTerm={searchTerm}
           searchCategory={searchCategory} 
-          setSearchTerm={(term) => handleSearch(term, searchCategory)}
-          setSearchCategory={(category) => handleSearch(searchTerm, category)} 
+          setSearchTerm={(term) => handleSearchWrapper(term, searchCategory)}
+          setSearchCategory={(category) => handleSearchWrapper(searchTerm, category)} 
         />
       </div>
       
@@ -207,6 +182,42 @@ const AdminDashboard = () => {
           )}
         </div>
         
+        {selectedCandidates.size > 0 && (
+          <div className="mb-4 p-4 bg-gray-50 rounded-lg flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <span className="text-gray-700">{selectedCandidates.size} candidates selected</span>
+              <select
+                className="border rounded px-2 py-1"
+                value={bulkUpdateStatus}
+                onChange={(e) => setBulkUpdateStatus(e.target.value)}
+              >
+                <option value="">Select status...</option>
+                <option value="Pending">Pending</option>
+                <option value="Reviewed">Reviewed</option>
+                <option value="Hired">Hired</option>
+                <option value="Rejected">Rejected</option>
+              </select>
+              <button
+                onClick={handleBulkStatusUpdate}
+                disabled={!bulkUpdateStatus}
+                className={`px-4 py-1 rounded ${
+                  bulkUpdateStatus 
+                    ? 'bg-blue-500 hover:bg-blue-600 text-white' 
+                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                }`}
+              >
+                Update Status
+              </button>
+            </div>
+            <button
+              onClick={() => setSelectedCandidates(new Set())}
+              className="text-gray-600 hover:text-gray-800"
+            >
+              Clear Selection
+            </button>
+          </div>
+        )}
+        
         {error && <p className="text-red-500 mb-4">{error}</p>}
         
         {filteredCandidates && filteredCandidates.length > 0 ? (
@@ -217,7 +228,9 @@ const AdminDashboard = () => {
                 candidate={candidate}
                 isAdmin={true}
                 updateCandidateStatus={updateCandidateStatus}
-                onDelete={() => handleDeleteCandidate(candidate._id || candidate.id)}
+                onDelete={() => handleDeleteClickWrapper(candidate._id || candidate.id)}
+                onSelect={handleSelectCandidate}
+                isSelected={selectedCandidates.has(candidate._id || candidate.id)}
               />
             ))}
           </div>
@@ -225,6 +238,13 @@ const AdminDashboard = () => {
           <p className="text-gray-500">No candidates found.</p>
         )}
       </div>
+
+      <DeleteCandidateModal
+        isOpen={modalIsOpen}
+        onClose={() => setModalIsOpen(false)}
+        onConfirm={confirmDeleteCandidateWrapper}
+        loading={loading}
+      />
     </div>
   );
 };

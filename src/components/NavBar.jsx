@@ -38,14 +38,25 @@ const NavBar = () => {
                 Admin Dashboard
               </Link>
             )}
-            <Link 
-              to="/dashboard" 
-              className={`px-3 py-2 rounded hover:bg-gray-700 transition-colors ${
-                location.pathname === '/dashboard' ? 'bg-gray-700' : ''
-              }`}
-            >
-              {user && user.role === 'admin' ? 'Candidate List' : 'Candidates Dashboard'}
-            </Link>
+            {user?.role === 'admin' ? (
+              <Link 
+                to="/admin/candidates"
+                className={`px-3 py-2 rounded hover:bg-gray-700 transition-colors ${
+                  location.pathname === '/admin/candidates' ? 'bg-gray-700' : ''
+                }`}
+              >
+                Candidate List
+              </Link>
+            ) : (
+              <Link 
+                to="/dashboard"
+                className={`px-3 py-2 rounded hover:bg-gray-700 transition-colors ${
+                  location.pathname === '/dashboard' ? 'bg-gray-700' : ''
+                }`}
+              >
+                Candidates Dashboard
+              </Link>
+            )}
             {user && user.role !== 'admin' && (
               <Link 
                 to="/referral" 
