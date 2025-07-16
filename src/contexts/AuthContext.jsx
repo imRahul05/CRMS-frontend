@@ -7,7 +7,7 @@ const initialState = {
   isAuthenticated: false,
   user: null,
   token: null,
-  loading: false,
+  loading: true, 
   error: null
 };
 
@@ -36,7 +36,8 @@ const authReducer = (state, action) => {
       };
     case 'LOGOUT':
       return {
-        ...initialState
+        ...initialState,
+         loading: false
       };
     case 'CLEAR_ERROR':
       return {
@@ -55,22 +56,38 @@ export const AuthProvider = ({ children }) => {
     const token = localStorage.getItem('token');
     const user = JSON.parse(localStorage.getItem('user'));
     
+    // if (token && user) {
+    //   if (!user.id) {
+    //     user.id = user._id || String(Date.now()); 
+    //   }
+      
+    //   // Ensure user has a role
+    //   if (!user.role) {
+    //     user.role = 'user'; 
+    //   }
+      
+    //   dispatch({ 
+    //     type: 'AUTH_SUCCESS',
+    //     payload: { user, token }
+    //   });
+    // }
     if (token && user) {
-      // Ensure user has an ID
-      if (!user.id) {
-        user.id = user._id || String(Date.now()); // Fallback ID if none exists
-      }
-      
-      // Ensure user has a role
-      if (!user.role) {
-        user.role = 'user'; // Default to 'user' role if none exists
-      }
-      
-      dispatch({ 
-        type: 'AUTH_SUCCESS',
-        payload: { user, token }
-      });
-    }
+  if (!user.id) {
+    user.id = user._id || String(Date.now()); 
+  }
+
+  if (!user.role) {
+    user.role = 'user';
+  }
+
+  dispatch({ 
+    type: 'AUTH_SUCCESS',
+    payload: { user, token }
+  });
+} else {
+  dispatch({ type: 'AUTH_FAILURE', payload: null }); 
+}
+
   }, []);
 
 
@@ -131,7 +148,6 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    
     dispatch({ type: 'LOGOUT' });
   };
 

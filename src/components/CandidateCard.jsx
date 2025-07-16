@@ -29,7 +29,13 @@ const CandidateCard = ({ candidate, updateCandidateStatus, isAdmin, onDelete, on
       <p className="text-gray-600">{candidate.jobTitle}</p>
       <p className="text-sm">{candidate.email}</p>
       <p className="text-sm">{candidate.phone}</p>
-    <p className="text-sm">
+
+      {candidate.experience && (
+        <p className="text-sm text-gray-700">
+          Experience: <span className="font-medium">{candidate.experience}</span>
+        </p>
+      )}
+       <p className="text-sm">
   <a 
     href={candidate.resume} 
     target="_blank" 

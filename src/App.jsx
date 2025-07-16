@@ -15,6 +15,8 @@ import RoleGuard from './components/RoleGuard';
 import { CandidateProvider } from './contexts/CandidateContext';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ToastContainer } from 'react-toastify';
+import { useLocation } from 'react-router-dom'; // add at the top
+
 import 'react-toastify/dist/ReactToastify.css';
 
 const App = () => {
@@ -24,7 +26,7 @@ const App = () => {
         <Router>
           <ToastContainer
             position="top-right"
-            autoClose={3000}
+            autoClose={2000}
             hideProgressBar={false}
             newestOnTop
             closeOnClick
@@ -41,9 +43,19 @@ const App = () => {
   );
 };
 
+
 const AppRoutes = () => {
-  const { isAuthenticated, user } = useAuth();
-  
+  const { isAuthenticated, user, loading } = useAuth();
+  const location = useLocation();
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
+
   return (
     <>
       <NavBar />
@@ -51,26 +63,31 @@ const AppRoutes = () => {
         <Route path="/login" element={isAuthenticated ? <Navigate to="/" /> : <Login />} />
         <Route path="/register" element={isAuthenticated ? <Navigate to="/" /> : <Register />} />
 
-      
-        <Route path="/" element={
-          <AuthGuard>
-            {user?.role === 'admin' ? <Navigate to="/admin" /> : <Home />}
-          </AuthGuard>
-        } />
+       
+        <Route
+          path="/"
+          element={
+            <AuthGuard>
+              {location.pathname === '/' && user?.role === 'admin' ? (
+                <Navigate to="/admin" />
+              ) : (
+                <Home />
+              )}
+            </AuthGuard>
+          }
+        />
+
         <Route path="/referral" element={<AuthGuard><ReferralForm /></AuthGuard>} />
         <Route path="/profile" element={<AuthGuard><Profile /></AuthGuard>} />
-        
         <Route path="/dashboard" element={<AuthGuard><CandidatesDashboard /></AuthGuard>} />
-        
         <Route path="/admin" element={<RoleGuard allowedRoles={['admin']}><AdminDashboard /></RoleGuard>} />
         <Route path="/admin/candidates" element={<RoleGuard allowedRoles={['admin']}><CandidateList /></RoleGuard>} />
         <Route path="/update/:id" element={<RoleGuard allowedRoles={['admin']}><UpdateCandidate /></RoleGuard>} />
-        
         <Route path="*" element={<Navigate to={isAuthenticated ? "/" : "/login"} />} />
       </Routes>
     </>
   );
-  
 };
+
 
 export default App;

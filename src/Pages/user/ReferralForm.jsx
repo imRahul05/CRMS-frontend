@@ -20,11 +20,24 @@ const ReferralForm = () => {
     resume: "",
   });
 
+    const jobTitles = [
+    "Frontend Developer",
+    "Backend Developer",
+    "Fullstack Developer",
+    "UI/UX Designer",
+    "Product Manager",
+    "QA Engineer",
+  ];
+
+  const experienceOptions = [ 
+    "Fresher", "1", "2", "3", "4+"
+  ];
+
   const inputFields = [
     { label: "Candidate Name *", name: "name", type: "text", placeholder: "Enter candidate name", required: true },
     { label: "Candidate Email *", name: "email", type: "email", placeholder: "Enter candidate email", required: true },
     { label: "Candidate Phone", name: "phone", type: "tel", placeholder: "Enter candidate phone number" },
-    { label: "Job Title *", name: "jobTitle", type: "text", placeholder: "Enter job title", required: true },
+    // { label: "Job Title *", name: "jobTitle", type: "text", placeholder: "Enter job title", required: true },
   ];
 
   const handleInputChange = (e) => {
@@ -92,7 +105,44 @@ const ReferralForm = () => {
             </div>
           ))}
 
+              {/* 🆕 Job Title Dropdown */}
+          <div className="mb-4">
+            <label htmlFor="jobTitle" className="block text-gray-700 text-sm font-bold mb-2">
+              Job Title *
+            </label>
+            <select
+              id="jobTitle"
+              name="jobTitle"
+              value={formData.jobTitle}
+              onChange={handleInputChange}
+              required
+              className="shadow border rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:shadow-outline"
+            >
+              <option value="">Select job title</option>
+              {jobTitles.map((title) => (
+                <option key={title} value={title}>{title}</option>
+              ))}
+            </select>
+          </div>
 
+             {/* 🆕 Experience Dropdown */}
+          <div className="mb-4">
+            <label htmlFor="experience" className="block text-gray-700 text-sm font-bold mb-2">
+              Experience
+            </label>
+            <select
+              id="experience"
+              name="experience"
+              value={formData.experience}
+              onChange={handleInputChange}
+              className="shadow border rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:shadow-outline"
+            >
+              <option value="">Select experience</option>
+              {experienceOptions.map((exp) => (
+                <option key={exp} value={exp}>{exp}</option>
+              ))}
+            </select>
+          </div>
           <div className="mb-6">
             <label
               htmlFor="resume"
