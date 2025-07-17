@@ -20,7 +20,7 @@ const Login = () => {
 
     if (authError) {
       setError(authError);
-      toast.error(authError);
+     // toast.error(authError);
     }
   }, [authError]);
 
@@ -63,7 +63,7 @@ const Login = () => {
     }
   };
 
-  // 💡 Handlers for Quick Login
+  // ---> Handlers for Quick Guest Login
   const loginAsAdmin = () => {
     setFormData({ email: 'admin@gmail.com', password: 'admin@gmail.com' });
   };

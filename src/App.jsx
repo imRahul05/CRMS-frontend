@@ -35,6 +35,7 @@ const App = () => {
             draggable
             pauseOnHover
             theme="light"
+            style={{ marginTop: '55px' }} 
           />
           <AppRoutes />
         </Router>

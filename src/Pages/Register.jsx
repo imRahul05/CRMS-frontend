@@ -21,7 +21,7 @@ const Register = () => {
   useEffect(() => {
     if (authError) {
       setError(authError);
-      toast.error(authError);
+     //  toast.error(authError);
     }
   }, [authError]);
 
@@ -48,7 +48,7 @@ const Register = () => {
       if (formData.password !== formData.confirmPassword) {
         const errorMsg = 'Passwords do not match';
         setError(errorMsg);
-        toast.error(errorMsg);
+         toast.error(errorMsg);
         return;
       }
       
@@ -67,7 +67,7 @@ const Register = () => {
        
       } else {
         setError(result.error);
-        toast.error(result.error);
+         toast.error(result.error);
       }
       
     } catch (err) {
