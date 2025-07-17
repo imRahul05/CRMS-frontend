@@ -1,32 +1,32 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
-import Notification from '../components/Notification';
-import { useAuth } from '../contexts/AuthContext';
-import { toast } from 'react-toastify';
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import Notification from "../components/Notification";
+import { useAuth } from "../contexts/AuthContext";
+import { toast } from "react-toastify";
 
 const Login = () => {
-  const [formData, setFormData] = useState({ email: '', password: '' });
+  const [formData, setFormData] = useState({ email: "", password: "" });
   const location = useLocation();
   const navigate = useNavigate();
   const { login, loading, error: authError } = useAuth();
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const registrationSuccess = localStorage.getItem('registrationSuccess');
+    const registrationSuccess = localStorage.getItem("registrationSuccess");
     if (registrationSuccess) {
       toast.success(registrationSuccess);
-      localStorage.removeItem('registrationSuccess');
+      localStorage.removeItem("registrationSuccess");
     }
 
     if (authError) {
       setError(authError);
-     // toast.error(authError);
+      // toast.error(authError);
     }
   }, [authError]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
@@ -34,7 +34,7 @@ const Login = () => {
     setError(null);
 
     if (!formData.email || !formData.password) {
-      const errorMsg = 'Please fill all required fields';
+      const errorMsg = "Please fill all required fields";
       setError(errorMsg);
       toast.error(errorMsg);
       return;
@@ -44,20 +44,20 @@ const Login = () => {
       const result = await login(formData.email, formData.password);
 
       if (result.success) {
-        toast.success('Login successful!');
-        const user = JSON.parse(localStorage.getItem('user'));
+        toast.success("Login successful!");
+        const user = JSON.parse(localStorage.getItem("user"));
 
-        if (user?.role === 'admin') {
-          navigate('/admin');
+        if (user?.role === "admin") {
+          navigate("/admin");
         } else {
-          navigate('/dashboard');
+          navigate("/dashboard");
         }
       } else {
         setError(result.error);
         toast.error(result.error);
       }
     } catch (err) {
-      const errorMsg = err.message || 'Login failed';
+      const errorMsg = err.message || "Login failed";
       setError(errorMsg);
       toast.error(errorMsg);
     }
@@ -65,11 +65,11 @@ const Login = () => {
 
   // ---> Handlers for Quick Guest Login
   const loginAsAdmin = () => {
-    setFormData({ email: 'admin@gmail.com', password: 'admin@gmail.com' });
+    setFormData({ email: "admin@gmail.com", password: "admin@gmail.com" });
   };
 
   const loginAsUser = () => {
-    setFormData({ email: 'newUser@gmail.com', password: 'qwerty@123' });
+    setFormData({ email: "newUser@gmail.com", password: "qwerty@123" });
   };
 
   return (
@@ -80,10 +80,13 @@ const Login = () => {
         <Notification error={error} />
 
         {/* 🔘 Quick Login Buttons */}
-       
+
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
+            <label
+              className="block text-gray-700 text-sm font-bold mb-2"
+              htmlFor="email"
+            >
               Email Address
             </label>
             <input
@@ -99,7 +102,10 @@ const Login = () => {
           </div>
 
           <div>
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="password">
+            <label
+              className="block text-gray-700 text-sm font-bold mb-2"
+              htmlFor="password"
+            >
               Password
             </label>
             <input
@@ -119,30 +125,43 @@ const Login = () => {
             disabled={loading}
             className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full"
           >
-            {loading ? 'Logging in...' : 'Login'}
+            {loading ? "Logging in..." : "Login"}
           </button>
-        <div className="flex justify-between mb-4">
-          <button
-            onClick={loginAsAdmin}
-            className="bg-purple-600 hover:bg-purple-800 text-white font-semibold px-4 py-2 rounded"
-          >
-           Guest Login as  Admin
-          </button>
-          <button
-            onClick={loginAsUser}
-            className="bg-green-600 hover:bg-green-800 text-white font-semibold px-4 py-2 rounded"
-          >
-            Guest Login as  User
-          </button>
-        </div>
+          <div className="flex justify-between mb-4">
+            <button
+              onClick={loginAsAdmin}
+              className="bg-purple-600 hover:bg-purple-800 text-white font-semibold px-4 py-2 rounded"
+            >
+              Guest Login as Admin
+            </button>
+            <button
+              onClick={loginAsUser}
+              className="bg-green-600 hover:bg-green-800 text-white font-semibold px-4 py-2 rounded"
+            >
+              Guest Login as User
+            </button>
+          </div>
 
           <div className="text-center mt-4">
             <p className="text-gray-600">
               Don't have an account?
-              <Link to="/register" className="text-blue-500 hover:text-blue-700 ml-1">
+              <Link
+                to="/register"
+                className="text-blue-500 hover:text-blue-700 ml-1"
+              >
                 Register
               </Link>
             </p>
+                       <p className="text-gray-600 text-center my-4">
+              Forgot Password? 
+              <Link
+                to="/reset-password"
+                className="text-blue-500 hover:text-blue-700 ml-1"
+              >
+                  Click Here
+              </Link>
+            </p>
+
           </div>
         </form>
       </div>

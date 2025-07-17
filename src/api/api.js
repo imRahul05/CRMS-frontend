@@ -59,3 +59,28 @@ export const submitReferral = async (referralData) => {
     throw error;
   }
 };
+
+
+
+
+// Function to request password reset
+export const requestPasswordResetApi = async (email) => {
+  try {
+    const response = await api.post('/api/user/reset-password', { email });
+    return response.data;
+  } catch (error) {
+    console.error('Error requesting password reset:', error);
+    throw error;
+  }
+};
+
+export const changePasswordApi = async (newPassword, token) => {
+  try {
+    const response = await api.post(`/api/user/request-password-change?token=${token}`, {
+      newPassword
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};

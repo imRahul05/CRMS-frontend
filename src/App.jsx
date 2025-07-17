@@ -18,6 +18,8 @@ import { ToastContainer } from 'react-toastify';
 import { useLocation } from 'react-router-dom'; // add at the top
 
 import 'react-toastify/dist/ReactToastify.css';
+import ResetPassword from './Pages/ResetPassword';
+import ChangePassword from './Pages/ChangePassword';
 
 const App = () => {
   return (
@@ -63,6 +65,8 @@ const AppRoutes = () => {
       <Routes>
         <Route path="/login" element={isAuthenticated ? <Navigate to="/" /> : <Login />} />
         <Route path="/register" element={isAuthenticated ? <Navigate to="/" /> : <Register />} />
+        <Route path="/reset-password" element={isAuthenticated ? <Navigate to="/" /> : <ResetPassword />} />
+        <Route path="/change-password" element={<ChangePassword />} />
 
        
         <Route
@@ -85,6 +89,7 @@ const AppRoutes = () => {
         <Route path="/admin/candidates" element={<RoleGuard allowedRoles={['admin']}><CandidateList /></RoleGuard>} />
         <Route path="/update/:id" element={<RoleGuard allowedRoles={['admin']}><UpdateCandidate /></RoleGuard>} />
         <Route path="*" element={<Navigate to={isAuthenticated ? "/" : "/login"} />} />
+
       </Routes>
     </>
   );

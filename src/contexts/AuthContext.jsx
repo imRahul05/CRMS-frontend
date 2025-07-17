@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useReducer, useEffect } from "react";
 import api from "../api/axios";
-import { toast } from 'react-toastify';
+import { toast } from "react-toastify";
 const AuthContext = createContext();
 
 const initialState = {
@@ -44,6 +44,27 @@ const authReducer = (state, action) => {
       return {
         ...initialState,
         loading: false,
+      };
+
+    case "PASSWORD_RESET_START":
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+
+    case "PASSWORD_RESET_SUCCESS":
+      return {
+        ...state,
+        loading: false,
+        error: null,
+      };
+
+    case "PASSWORD_RESET_FAILURE":
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
       };
     case "CLEAR_ERROR":
       return {
@@ -119,7 +140,9 @@ export const AuthProvider = ({ children }) => {
       return { success: false, error: errorMessage };
     }
   };
-
+ const clearError=()=>{
+    dispatch({type:"CLEAR_ERROR"})
+  }
   const register = async (userData) => {
     dispatch({ type: "AUTH_START" });
     try {
@@ -141,10 +164,8 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     dispatch({ type: "LOGOUT" });
-     toast.success('Logged out successfully!');
-    
+    toast.success("Logged out successfully!");
   };
-
   const updateProfile = async (userData) => {
     dispatch({ type: "AUTH_START" });
 
@@ -173,9 +194,40 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const clearError = () => {
-    dispatch({ type: "CLEAR_ERROR" });
+  const requestPasswordReset = async (email) => {
+    dispatch({ type: "PASSWORD_RESET_START" });
+    try {
+      const response = await api.post("/api/user/reset-password", { email });
+      dispatch({ type: "PASSWORD_RESET_SUCCESS" });
+      return { success: true };
+    } catch (error) {
+      const errorMessage =
+        error.response?.data?.message || "Failed to send reset email";
+      dispatch({ type: "PASSWORD_RESET_FAILURE", payload: errorMessage });
+      return { success: false, error: errorMessage };
+    }
   };
+
+  const changePassword = async (newPassword, token) => {
+    dispatch({ type: "AUTH_START" });
+    try {
+      const response = await api.post(
+        `/api/user/request-password-change?token=${token}`,
+        {
+          newPassword,
+        }
+      );
+
+      dispatch({ type: "PASSWORD_RESET_SUCCESS" });
+      return { success: true };
+    } catch (error) {
+      const errorMessage =
+        error.response?.data?.message || "Failed to change password";
+      dispatch({ type: "AUTH_FAILURE", payload: errorMessage });
+      return { success: false, error: errorMessage };
+    }
+  };
+
 
   const value = {
     ...state,
@@ -184,6 +236,8 @@ export const AuthProvider = ({ children }) => {
     logout,
     updateProfile,
     clearError,
+    requestPasswordReset,
+    changePassword,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
