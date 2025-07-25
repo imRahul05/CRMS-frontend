@@ -84,3 +84,33 @@ export const changePasswordApi = async (newPassword, token) => {
     throw error;
   }
 };
+
+// Function to fetch analytics data
+// export const fetchAnalyticsData = async (graphType) => {
+//   try {
+//     const response = await api.get(`/api/user/admin/analytics?type=${graphType}`);
+//     return response.data;
+//   } catch (error) {
+//     console.error('Error fetching analytics data:', error);
+//     throw error;
+//   }
+// };
+export const fetchAnalyticsData = async (chartType) => {
+  try {
+    const response = await api.get(`/api/user/admin/analytics?type=${chartType}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching analytics:', error);
+    throw error;
+  }
+};
+
+// // Usage examples:
+// // Bar chart data
+// const barChartData = await getAnalytics('bar');
+
+// // Line chart data
+// const lineChartData = await getAnalytics('line');
+
+// // Overall stats
+// const stats = await getAnalytics();

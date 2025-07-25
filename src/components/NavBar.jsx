@@ -68,14 +68,24 @@ const NavBar = () => {
             )}
 
             {user && user.role === 'admin' && (
-              <Link
-                to="/admin"
-                className={`px-3 py-2 rounded hover:bg-gray-700 transition-colors ${
-                  location.pathname === '/admin' ? 'bg-gray-700' : ''
-                }`}
-              >
-                Admin Dashboard
-              </Link>
+              <>
+                <Link
+                  to="/admin"
+                  className={`px-3 py-2 rounded hover:bg-gray-700 transition-colors ${
+                    location.pathname === '/admin' ? 'bg-gray-700' : ''
+                  }`}
+                >
+                  Admin Dashboard
+                </Link>
+                <Link
+                  to="/admin/analytics"
+                  className={`px-3 py-2 rounded hover:bg-gray-700 transition-colors ${
+                    location.pathname === '/admin/analytics' ? 'bg-gray-700' : ''
+                  }`}
+                >
+                  Analytics
+                </Link>
+              </>
             )}
 
             {user?.role === 'admin' ? (
