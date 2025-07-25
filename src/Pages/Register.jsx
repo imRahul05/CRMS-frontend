@@ -4,6 +4,7 @@ import Notification from "../components/Notification";
 import { useAuth } from "../contexts/AuthContext";
 import { toast } from "react-toastify";
 import { registerSchema } from "../ZodValidationSchema/Schema";
+import background from '../assets/bg.jpg'
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -98,8 +99,19 @@ const Register = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <div className="w-full max-w-md p-8 bg-white rounded-lg shadow-md">
+    <div 
+      className="flex items-center justify-center min-h-screen relative"
+      style={{
+        backgroundImage: `url(${background})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}
+    >
+      {/* Dark overlay */}
+      <div className="absolute inset-0 bg-black bg-opacity-50"></div>
+      
+      {/* Content */}
+      <div className="w-full max-w-md p-8 bg-white/95 backdrop-opacity-85 rounded-lg shadow-xl relative z-10 ">
         <h1 className="text-3xl font-bold text-center mb-6">Create an Account</h1>
 
         <Notification error={error} />
