@@ -48,9 +48,9 @@ const NavBar = () => {
   }, []);
 
   return (
-    <nav className="bg-gray-800 text-white p-4 shadow-md mb-6">
+    <nav className="bg-gray-800 text-white py-5 px-3 shadow-md">
       <div className="container mx-auto flex flex-col md:flex-row justify-between items-center">
-        <div className="text-xl font-bold mb-4 md:mb-0">
+        <div className="text-xl font-bold mb-1 md:mb-0">
           <Link to="/" className="hover:text-blue-300 transition-colors">CRMS</Link>
         </div>
 

@@ -10,6 +10,7 @@ import Analytics from './Pages/admin/Analytics';
 import UpdateCandidate from './Pages/UpdateCandidate';
 import Login from './Pages/Login';
 import Register from './Pages/Register';
+import LandingPage from './Pages/LandingPage';
 import Profile from './Pages/Profile';
 import AuthGuard from './components/AuthGuard';
 import RoleGuard from './components/RoleGuard';
@@ -69,12 +70,14 @@ const AppRoutes = () => {
         <Route path="/reset-password" element={isAuthenticated ? <Navigate to="/" /> : <ResetPassword />} />
         <Route path="/change-password" element={<ChangePassword />} />
 
-       
+        {/* Landing page route */}
+        <Route path="/" element={isAuthenticated ? <Navigate to="/home" /> : <LandingPage />} />
+        
         <Route
-          path="/"
+          path="/home"
           element={
             <AuthGuard>
-              {location.pathname === '/' && user?.role === 'admin' ? (
+              {location.pathname === '/home' && user?.role === 'admin' ? (
                 <Navigate to="/admin" />
               ) : (
                 <Home />
