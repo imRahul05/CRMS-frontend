@@ -67,6 +67,7 @@ const AdminDashboard = () => {
         setFilteredCandidates(data);
       } catch (err) {
         setError('Failed to fetch referrals');
+     //   console.log(err)
         toast.error('Failed to fetch referrals');
       } finally {
         setLoading(false);
