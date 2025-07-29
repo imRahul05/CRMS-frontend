@@ -29,7 +29,7 @@ const App = () => {
       <CandidateProvider>
         <Router>
           <ToastContainer
-            position="top-right"
+             position="bottom-center"
             autoClose={900}
             hideProgressBar={true}
             newestOnTop
@@ -39,7 +39,7 @@ const App = () => {
             draggable
             pauseOnHover
             theme="light"
-            style={{ marginTop: '55px' }} 
+            limit={3}
           />
           <AppRoutes />
         </Router>
